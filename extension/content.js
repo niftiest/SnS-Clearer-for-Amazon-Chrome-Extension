@@ -43,6 +43,10 @@
 
   // ---------- on-page overlay ----------
   let overlayEl = null;
+  function removeOverlay() {
+    if (overlayEl) overlayEl.remove();
+    overlayEl = null;
+  }
   function ensureOverlay() {
     if (overlayEl) return overlayEl;
     const el = document.createElement('div');
@@ -57,15 +61,25 @@
       '<div style="font-weight:bold;margin-bottom:6px">S&amp;S Clearer</div>' +
       '<div id="sns-clearer-msg">Idle</div>' +
       '<div id="sns-clearer-count" style="margin-top:6px;opacity:.85"></div>' +
-      '<button id="sns-clearer-stop" style="margin-top:8px;background:#e47911;' +
+      '<button id="sns-clearer-btn" style="margin-top:8px;background:#e47911;' +
       'border:0;color:#111;font-weight:bold;padding:6px 10px;border-radius:4px;' +
       'cursor:pointer">Stop</button>';
     document.documentElement.appendChild(el);
-    el.querySelector('#sns-clearer-stop').addEventListener('click', () =>
-      stop('Stopped by user.')
-    );
+    el.querySelector('#sns-clearer-btn').addEventListener('click', () => {
+      // While running the button stops the run; otherwise it dismisses the overlay.
+      if (overlayEl && overlayEl.dataset.mode === 'close') removeOverlay();
+      else stop('Stopped by user.');
+    });
     overlayEl = el;
     return el;
+  }
+  // mode: 'stop' (running) shows a Stop button; 'close' (idle/done) shows Close.
+  function setButtonMode(mode) {
+    const el = ensureOverlay();
+    el.dataset.mode = mode;
+    const btn = el.querySelector('#sns-clearer-btn');
+    btn.textContent = mode === 'close' ? 'Close' : 'Stop';
+    btn.style.background = mode === 'close' ? '#e7e9ec' : '#e47911';
   }
   function setMsg(msg, count) {
     const el = ensureOverlay();
@@ -83,6 +97,7 @@
       lastMessage: reason || null
     });
     setMsg(reason || 'Stopped.', s.cancelledCount || 0);
+    setButtonMode('close');
   }
 
   async function runOneCancellation() {
@@ -96,6 +111,7 @@
     if (!editBtn) {
       await setState({ running: false, lastMessage: 'Done.' });
       setMsg('Done! No subscriptions left.', s.cancelledCount || 0);
+      setButtonMode('close');
       return;
     }
 
@@ -144,6 +160,7 @@
 
     aborted = false;
     setMsg('Running…', s.cancelledCount || 0);
+    setButtonMode('stop');
 
     if (!onListPage()) {
       // Post-cancel completion/transit page: bounce back to the list to continue.
@@ -163,7 +180,10 @@
     const nv = changes[KEY].newValue || {};
     if (nv.running === false) {
       aborted = true;
-      if (overlayEl) setMsg(nv.lastMessage || 'Stopped.', nv.cancelledCount || 0);
+      if (overlayEl) {
+        setMsg(nv.lastMessage || 'Stopped.', nv.cancelledCount || 0);
+        setButtonMode('close');
+      }
     }
   });
 
