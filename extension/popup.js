@@ -47,8 +47,17 @@ document.getElementById('start').addEventListener('click', async () => {
     }
   });
 
-  // Run the process in a fresh tab so the user's current tab is left alone.
-  await chrome.tabs.create({ url: LIST_URL, active: true });
+  // If the active tab is already on the subscription list, run there (reload to
+  // kick off the content script). Otherwise open a fresh tab and leave this one alone.
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const onList =
+    tab && tab.url &&
+    tab.url.startsWith('https://www.amazon.com/auto-deliveries/subscriptionList');
+  if (onList) {
+    await chrome.tabs.reload(tab.id);
+  } else {
+    await chrome.tabs.create({ url: LIST_URL, active: true });
+  }
   window.close();
 });
 
