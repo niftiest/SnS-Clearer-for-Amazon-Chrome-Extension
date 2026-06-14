@@ -88,16 +88,28 @@ it on every page load and continues.
 }
 ```
 
-## Playwright capture checklist (to fill `selectors.js`)
+## Captured selectors (from Playwright recorder run, 2026-06-14)
 
-1. Subscription **list page** DOM: repeating container for one subscription + how to
-   read its name/title.
-2. **Edit control** — button / link / dropdown toggle? Selector + visible text.
-3. **"Cancel Subscription" menu item** that appears after Edit — selector + text.
-4. **Confirm "Cancel Subscription" button** (shows ~2s later) — selector + text +
-   the modal/container it lives in.
-5. The **URL it forwards to** after confirming.
-6. The **empty state** when no subscriptions remain — element/message to detect "done".
+The recorder confirmed the entire Edit → Cancel → Confirm sequence happens **on the
+subscription list page** (in-page AJAX), with a full navigation only on the final
+confirm. The cancel menu and confirm button are **not** in the initial page DOM —
+they are injected via AJAX after each click, which is why smart-wait is required.
+
+| Step | Element | Selector |
+|---|---|---|
+| 1. Edit trigger | `<input type=submit class=a-button-input aria-label="Edit, <product>">` | `input.a-button-input[aria-label^="Edit,"]` (first match = first subscription) |
+| 2. Cancel menu item (AJAX) | `<a class="a-link-normal actionLink t-action-type-CANCEL">Cancel subscription</a>` inside `#sub-action-items` | `a.actionLink.t-action-type-CANCEL` |
+| 3. Confirm button (slide-over, ~2s) | `<input class=a-button-input data-csa-c-content-id="confirm-cancel">` inside `#confirmCancelLink` | `input[data-csa-c-content-id="confirm-cancel"]` |
+| 4. Forwards to | `/fmc/everyday-essentials-sns?snsActionCompleted=cancelSubscription&...` | redirect back to `listUrl` |
+
+- **Item name** for logging: strip the leading `"Edit, "` from the Edit button's
+  `aria-label`.
+- **Empty state / done:** no `input.a-button-input[aria-label^="Edit,"]` present on the
+  list page → all subscriptions cancelled.
+- The recorded account had ~26 subscriptions (page reads "26 of 26 items"). There is no
+  hidden desktop/tablet duplication of cards, so the first DOM match is a real card; the
+  engine still selects the first **visible** Edit button as insurance. The iteration
+  safety cap is high (1000); normal completion is the empty-state check.
 
 ## Out of scope
 

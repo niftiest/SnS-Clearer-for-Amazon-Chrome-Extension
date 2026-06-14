@@ -1,0 +1,13 @@
+{
+  "name": "sns-recorder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright recorder that logs the Amazon Subscribe & Save cancellation flow for selector capture.",
+  "main": "recorder.js",
+  "scripts": {
+    "record": "node recorder.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.48.0"
+  }
+}

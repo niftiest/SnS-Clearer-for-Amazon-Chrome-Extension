@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Amazon Subscribe & Save Clearer",
+  "version": "1.0.0",
+  "description": "Bulk-cancels every Amazon Subscribe & Save subscription, one after another, automatically.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["*://www.amazon.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "S&S Clearer"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.amazon.com/*"],
+      "js": ["selectors.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

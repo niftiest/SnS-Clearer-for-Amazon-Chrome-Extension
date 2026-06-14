@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        width: 260px;
+        margin: 0;
+        font: 13px/1.45 Arial, sans-serif;
+        color: #131921;
+      }
+      header {
+        background: #131921;
+        color: #fff;
+        padding: 10px 14px;
+        font-weight: bold;
+      }
+      .body { padding: 14px; }
+      .row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+      .row .label { color: #555; }
+      .row .val { font-weight: bold; }
+      .status-running { color: #067d62; }
+      .status-idle { color: #888; }
+      #error {
+        display: none;
+        margin: 8px 0;
+        padding: 8px;
+        background: #fdecea;
+        color: #b3261e;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .buttons { display: flex; gap: 8px; margin-top: 12px; }
+      button {
+        flex: 1;
+        padding: 9px 0;
+        border: 0;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      #start { background: #e47911; color: #111; }
+      #stop { background: #e7e9ec; color: #131921; }
+      button:disabled { opacity: 0.45; cursor: default; }
+      .hint { margin-top: 10px; font-size: 11px; color: #888; }
+    </style>
+  </head>
+  <body>
+    <header>Amazon S&amp;S Clearer</header>
+    <div class="body">
+      <div class="row">
+        <span class="label">Status</span>
+        <span class="val" id="status">Idle</span>
+      </div>
+      <div class="row">
+        <span class="label">Cancelled</span>
+        <span class="val" id="count">0</span>
+      </div>
+      <div class="row">
+        <span class="label">Last</span>
+        <span class="val" id="last" style="max-width:150px;text-align:right;font-weight:normal">—</span>
+      </div>
+      <div id="error"></div>
+      <div class="buttons">
+        <button id="start">Start</button>
+        <button id="stop" disabled>Stop</button>
+      </div>
+      <div class="hint">
+        Start opens your subscription list and cancels every item one after another.
+        Stop halts before the next click.
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
