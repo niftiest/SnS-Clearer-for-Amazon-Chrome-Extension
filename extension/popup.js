@@ -47,8 +47,8 @@ document.getElementById('start').addEventListener('click', async () => {
     }
   });
 
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab) await chrome.tabs.update(tab.id, { url: LIST_URL });
+  // Run the process in a fresh tab so the user's current tab is left alone.
+  await chrome.tabs.create({ url: LIST_URL, active: true });
   window.close();
 });
 
