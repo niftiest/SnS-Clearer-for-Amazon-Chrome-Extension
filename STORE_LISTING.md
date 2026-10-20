@@ -52,7 +52,7 @@ S&S Clearer is an independent tool and is not affiliated with, endorsed by, or s
 https://github.com/niftiest/SnS-Clearer-for-Amazon-Chrome-Extension
 
 **Graphics:**
-- Store icon (128×128): `extension/icons/icon128.png`
+- Store icon (128×128): `store/promo/store-icon-128x128.png` (96×96 artwork + 16px transparent padding, per Google's icon guidelines)
 - Screenshots (1280×800): `store/screenshots/1-picker.png`, `2-confirm.png`, `3-progress.png`
 - Small promo tile (440×280): `store/promo/promo-small-440x280.png`
 - Marquee promo tile (1400×560): `store/promo/promo-marquee-1400x560.png`

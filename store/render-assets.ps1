@@ -39,6 +39,16 @@ foreach ($s in 16, 32, 48, 128) {
   Remove-Item $page
 }
 
+# Store icon: Google's guidelines want 96x96 artwork centred in a transparent 128x128 canvas.
+$page = Join-Path $src 'store-icon.html'
+'<!doctype html><style>html,body{margin:0;background:transparent}img{display:block;width:96px;height:96px;margin:16px}</style><img src="icon.svg">' |
+  Set-Content $page
+$out = Join-Path $root 'store\promo\store-icon-128x128.png'
+New-Item -ItemType Directory -Force -Path (Split-Path $out) | Out-Null
+Remove-Item $out -ErrorAction SilentlyContinue
+Shot "$srcUrl/store-icon.html" 128 128 $out -transparent
+Remove-Item $page
+
 $n = 1
 foreach ($view in 'picker', 'confirm', 'progress') {
   $out = Join-Path $shots "$n-$view.png"
