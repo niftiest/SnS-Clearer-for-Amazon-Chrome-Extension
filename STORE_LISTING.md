@@ -54,6 +54,9 @@ https://github.com/niftiest/SnS-Clearer-for-Amazon-Chrome-Extension
 **Graphics:**
 - Store icon (128×128): `extension/icons/icon128.png`
 - Screenshots (1280×800): `store/screenshots/1-picker.png`, `2-confirm.png`, `3-progress.png`
+- Small promo tile (440×280): `store/promo/promo-small-440x280.png`
+- Marquee promo tile (1400×560): `store/promo/promo-marquee-1400x560.png`
+- All store images are 24-bit PNG with no alpha, as the dashboard requires.
 - Regenerate all of these with `store/render-assets.ps1`.
 
 ## Privacy practices tab

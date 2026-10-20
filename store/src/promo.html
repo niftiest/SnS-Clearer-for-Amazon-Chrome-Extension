@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Chrome Web Store promo tiles. ?size=small (440x280) or ?size=marquee (1400x560). -->
+<style>
+  html, body { margin: 0; overflow: hidden; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #fff;
+    background: linear-gradient(135deg, #1b2533 0%, #131921 55%, #2a1d10 100%);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+  }
+  h1 { margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+  p { margin: 0; color: #c9d1db; }
+
+  .small { width: 440px; height: 280px; flex-direction: column; justify-content: center; text-align: center; }
+  .small img.icon { width: 88px; height: 88px; margin-bottom: 16px; }
+  .small h1 { font-size: 34px; }
+  .small p { font-size: 16px; margin-top: 6px; }
+
+  .marquee { width: 1400px; height: 560px; padding: 0 110px; gap: 90px; }
+  .marquee .copy { flex: 1; }
+  .marquee img.icon { width: 96px; height: 96px; margin-bottom: 26px; }
+  .marquee h1 { font-size: 64px; }
+  .marquee p { font-size: 25px; margin-top: 10px; }
+  .marquee ul { list-style: none; padding: 0; margin: 30px 0 0; font-size: 21px; color: #e6eaef; }
+  .marquee li { margin: 10px 0; display: flex; align-items: center; gap: 12px; }
+  .marquee li::before {
+    content: ""; width: 10px; height: 10px; border-radius: 50%; background: #f08a24; flex: none;
+  }
+  .marquee .frame {
+    flex: none; width: 380px; border-radius: 12px; overflow: hidden; background: #fff;
+    box-shadow: 0 24px 64px rgba(0,0,0,.55);
+  }
+  .marquee .frame { transform: scale(0.9); }
+  .marquee iframe { display: block; width: 380px; height: 532px; border: 0; }
+  img.icon { border-radius: 22%; box-shadow: 0 0 0 2px rgba(255,255,255,.14), 0 10px 30px rgba(0,0,0,.4); }
+</style>
+</head>
+<body>
+<script>
+  const size = new URLSearchParams(location.search).get('size') || 'small';
+  document.body.className = size;
+  document.body.innerHTML = size === 'small'
+    ? `<img class="icon" src="icon.svg" alt="">
+       <h1>S&amp;S Clearer</h1>
+       <p>Cancel Subscribe &amp; Save in bulk</p>`
+    : `<div class="copy">
+         <img class="icon" src="icon.svg" alt="">
+         <h1>S&amp;S Clearer</h1>
+         <p>Pick your Subscribe &amp; Save items. Cancel them all in one go.</p>
+         <ul>
+           <li>Choose exactly what to cancel, with photos</li>
+           <li>Review everything before it happens</li>
+           <li>Runs in your browser. No data collected</li>
+         </ul>
+       </div>
+       <div class="frame"><iframe src="popup-frame.html?view=picker" scrolling="no"></iframe></div>`;
+</script>
+</body>
+</html>

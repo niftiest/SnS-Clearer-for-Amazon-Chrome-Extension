@@ -48,9 +48,10 @@ extension/
   popup.html/js   Subscription picker, confirmation step, live status
   icons/          Toolbar/store icons (rendered from store/src/icon.svg)
 store/
-  render-assets.ps1   Re-renders the icons and store screenshots with headless Chrome
+  render-assets.ps1   Re-renders the icons, screenshots and promo tiles with headless Chrome
   screenshots/        1280x800 Chrome Web Store screenshots
-  src/                Icon SVG + screenshot templates (mock data)
+  promo/              440x280 small and 1400x560 marquee promo tiles
+  src/                Icon SVG + screenshot/promo templates (mock data)
 STORE_LISTING.md      Copy and answers for the Chrome Web Store dashboard
 PRIVACY.md            Privacy policy (linked from the store listing)
 build-zip.ps1         Builds dist/amazon-sns-clearer.zip for upload
