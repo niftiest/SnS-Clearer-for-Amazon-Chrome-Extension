@@ -11,9 +11,16 @@ window.SNS_SELECTORS = {
   // How we recognize we're on the list page (path prefix, ref param can vary).
   listPathPrefix: '/auto-deliveries/subscriptionList',
 
-  // Step 1: the per-subscription "Edit" button. First match = first subscription.
-  // Its aria-label is "Edit, <product name>".
-  editButton: 'input.a-button-input[aria-label^="Edit,"]',
+  // One tile per subscription (Oct 2026 grid layout). Its data-edit-url carries
+  // the subscription's unique id, which is how we target a specific item.
+  tile: '[class*="subscriptions-card"][class*="clickableTile"][data-edit-url]',
+  tileIdAttr: 'data-edit-url',
+  tileIdPattern: /subscriptionId=([\w-]+)/,
+  tileName: '.a-truncate-full',
+  tileImage: 'img',
+
+  // Step 1: the tile's "Edit" button: <div role="button" data-edit-link="true">.
+  editButton: '[data-edit-link="true"]',
 
   // Step 2: the "Cancel subscription" item revealed (via AJAX) after clicking Edit.
   cancelMenuItem:

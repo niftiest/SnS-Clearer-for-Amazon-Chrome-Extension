@@ -1,37 +1,40 @@
-# Amazon Subscribe & Save Clearer
+# S&S Clearer for Amazon
 
-A Chrome extension that bulk-cancels **every** Amazon "Subscribe & Save" subscription
-on your account, one after another, automatically.
+A Chrome extension that bulk-cancels the Amazon "Subscribe & Save" subscriptions you
+pick (or all of them), one after another, automatically.
 
-> ⚠️ This permanently cancels all of your Subscribe & Save subscriptions. There is one
-> confirmation prompt when you press **Start**; after that it runs unattended until the
-> list is empty or you press **Stop**.
+> ⚠️ This permanently cancels the Subscribe & Save subscriptions you select. There is one
+> confirmation prompt when you press **Cancel selected**; after that it runs unattended
+> until every selected item is done or you press **Stop**.
 
 ## How it works
 
 Each cancellation forwards you to a new page, so the extension is **resumable**: it
 keeps its state in `chrome.storage.local` and, on every page load, continues from where
-it left off. It always cancels the *first* subscription in the list — the list shrinks
-after each one, so "first" is always the next target — until none remain.
+it left off. It works through a queue of the subscription ids you checked in the popup,
+finding each one's tile by id, until the queue is empty.
 
 Per item it performs: **Edit → Cancel subscription → (wait for the confirm button that
 loads ~2s later) → Cancel Subscription**, then returns to the subscription list and
 repeats.
 
-## Install (unpacked)
+## Install from source (unpacked)
 
 1. Open `chrome://extensions` in Chrome.
 2. Turn on **Developer mode** (top-right).
 3. Click **Load unpacked** and select the `extension/` folder in this repo.
-4. Pin the **Amazon S&S Clearer** extension for easy access.
+4. Pin the **S&S Clearer for Amazon** extension for easy access.
 
 ## Use
 
 1. Make sure you're logged in to Amazon.
-2. Click the extension icon → **Start** → confirm the warning.
-3. It opens your subscription list and begins cancelling. A small overlay (top-right of
-   the page) shows progress and has a **Stop** button. The popup also shows a live count.
-4. It finishes automatically when no subscriptions remain ("Done! No subscriptions left.").
+2. Click the extension icon. If you're not on your subscription list, click
+   **Open subscription list**, then click the icon again.
+3. The popup lists every subscription (checkbox, photo, title). Tick the ones to cancel,
+   or use **All** / **None**, then click **Cancel N selected** and confirm.
+4. A small overlay (top-right of the page) shows progress and has a **Stop** button. The
+   popup also shows a live count. Only the checked subscriptions are touched; each is
+   targeted by its subscription id, so identical-looking items aren't mixed up.
 
 Press **Stop** (popup or overlay) at any time to halt before the next click.
 
@@ -42,7 +45,15 @@ extension/
   manifest.json   MV3 config
   selectors.js    All Amazon selectors/URLs — the only file to edit if Amazon's markup changes
   content.js      The resumable cancel engine + on-page overlay
-  popup.html/js   Start/Stop UI, live status
+  popup.html/js   Subscription picker, confirmation step, live status
+  icons/          Toolbar/store icons (rendered from store/src/icon.svg)
+store/
+  render-assets.ps1   Re-renders the icons and store screenshots with headless Chrome
+  screenshots/        1280x800 Chrome Web Store screenshots
+  src/                Icon SVG + screenshot templates (mock data)
+STORE_LISTING.md      Copy and answers for the Chrome Web Store dashboard
+PRIVACY.md            Privacy policy (linked from the store listing)
+build-zip.ps1         Builds dist/amazon-sns-clearer.zip for upload
 ```
 
 ## Re-capturing selectors (if Amazon changes its page)
@@ -63,7 +74,22 @@ Drive the cancel flow once; selectors/HTML/navigations are logged to
 
 - Only cancels Subscribe & Save (`auto-deliveries`) subscriptions — no other Amazon
   subscription types.
-- The content script is inert on every page until you press Start; it only acts while a
+- The content script is inert on every page until you confirm a run; it only acts while a
   run is active.
-- A safety cap (1000 iterations) guards against a runaway loop; normal completion is the
-  empty-list check.
+- A safety cap (1000 iterations) guards against a runaway loop; normal completion is an
+  empty queue.
+
+## Privacy
+
+S&S Clearer collects no data and makes no network requests of its own. See
+[PRIVACY.md](PRIVACY.md).
+
+## Disclaimer
+
+S&S Clearer is an independent tool and is not affiliated with, endorsed by, or sponsored
+by Amazon. Amazon and Subscribe & Save are trademarks of Amazon.com, Inc. or its
+affiliates. Cancellations are permanent; use at your own risk.
+
+## License
+
+[MIT](LICENSE)

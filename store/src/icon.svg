@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="28" fill="#131921"/>
+  <!-- subscription loop -->
+  <path d="M 93.5 43.4 A 36 36 0 1 0 97.8 76.3" fill="none" stroke="#ffffff" stroke-width="11" stroke-linecap="round"/>
+  <polygon points="104,24 108,54 78,47" fill="#ffffff"/>
+  <!-- clear -->
+  <path d="M 52 52 L 76 76 M 76 52 L 52 76" stroke="#f08a24" stroke-width="11" stroke-linecap="round"/>
+</svg>

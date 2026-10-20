@@ -3,3 +3,4 @@ tools/recorder/node_modules/
 tools/recorder/logs/
 tools/recorder/.pw-user-data/
 dist/
+store/src/popup-frame.html

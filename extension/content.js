@@ -27,8 +27,6 @@
   const onListPage = () => location.pathname.startsWith(S.listPathPrefix);
   const isVisible = (el) =>
     !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
-  const firstVisible = (selector) =>
-    Array.prototype.find.call(document.querySelectorAll(selector), isVisible) || null;
 
   async function waitForElement(selector, timeout) {
     const start = Date.now();
@@ -100,6 +98,43 @@
     setButtonMode('close');
   }
 
+  // ---------- subscription tiles ----------
+  const tileId = (tile) => {
+    const m = (tile.getAttribute(S.tileIdAttr) || '').match(S.tileIdPattern);
+    return m ? m[1] : null;
+  };
+  const tileName = (tile) => {
+    const el = tile.querySelector(S.tileName);
+    return (el ? el.textContent : '').trim() || 'subscription';
+  };
+  const findTile = (id) =>
+    Array.prototype.find.call(document.querySelectorAll(S.tile), (t) => tileId(t) === id) ||
+    null;
+
+  // The tile grid renders after document_idle, so poll briefly before giving up.
+  async function waitFor(fn, timeout) {
+    for (const start = Date.now(); Date.now() - start < timeout; await sleep(250)) {
+      if (aborted) return null;
+      const v = fn();
+      if (v) return v;
+    }
+    return null;
+  }
+
+  async function scanTiles() {
+    await waitFor(() => document.querySelector(S.tile), 8000);
+    const seen = new Set();
+    const items = [];
+    document.querySelectorAll(S.tile).forEach((t) => {
+      const id = tileId(t);
+      if (!id || seen.has(id)) return;
+      seen.add(id);
+      const img = t.querySelector(S.tileImage);
+      items.push({ id, name: tileName(t), img: img ? img.src : null });
+    });
+    return items;
+  }
+
   async function runOneCancellation() {
     const s = await getState();
     if ((s.iterations || 0) >= MAX_ITER) {
@@ -107,23 +142,50 @@
       return;
     }
 
-    const editBtn = firstVisible(S.editButton);
-    if (!editBtn) {
+    const queue = s.queue || [];
+    const total = s.total || queue.length;
+    const done = total - queue.length + 1; // 1-based position of this item
+    if (!queue.length) {
+      const skipped = (s.skipped || []).length;
       await setState({ running: false, lastMessage: 'Done.' });
-      setMsg('Done! No subscriptions left.', s.cancelledCount || 0);
+      setMsg(
+        'Done! Cancelled all selected subscriptions.' +
+          (skipped ? ' (' + skipped + ' not found on the page.)' : ''),
+        s.cancelledCount || 0
+      );
       setButtonMode('close');
       return;
     }
 
-    const name =
-      (editBtn.getAttribute('aria-label') || '')
-        .replace(/^Edit,\s*/i, '')
-        .trim() || 'subscription';
-    setMsg('Cancelling: ' + name, s.cancelledCount || 0);
+    const id = queue[0];
+    const name = (s.names && s.names[id]) || 'subscription';
+    const tile = await waitFor(() => findTile(id), 8000);
+    if (aborted) return;
+    if (!tile) {
+      // Already gone (cancelled elsewhere?) — skip it and move on.
+      await setState({
+        queue: queue.slice(1),
+        skipped: (s.skipped || []).concat(name),
+        iterations: (s.iterations || 0) + 1
+      });
+      return runOneCancellation();
+    }
 
+    const editBtn = tile.querySelector(S.editButton);
+    if (!editBtn) {
+      await stop('Could not find the Edit button for: ' + name);
+      return;
+    }
+    setMsg('Cancelling ' + done + ' of ' + total + ': ' + name, s.cancelledCount || 0);
+
+    // A click that lands before the page's handlers attach is ignored, so retry once.
     editBtn.click();
-
-    const cancelLink = await waitForElement(S.cancelMenuItem, 10000);
+    let cancelLink = await waitForElement(S.cancelMenuItem, 5000);
+    if (aborted) return;
+    if (!cancelLink) {
+      editBtn.click();
+      cancelLink = await waitForElement(S.cancelMenuItem, 10000);
+    }
     if (aborted) return;
     if (!cancelLink) {
       await stop('Could not find the "Cancel subscription" menu item.');
@@ -139,6 +201,7 @@
     }
 
     const next = await setState({
+      queue: queue.slice(1),
       iterations: (s.iterations || 0) + 1,
       cancelledCount: (s.cancelledCount || 0) + 1,
       lastCancelled: name
@@ -173,6 +236,17 @@
 
     await runOneCancellation();
   }
+
+  // The popup asks for the list of subscriptions to build its checklist.
+  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (!msg || msg.type !== 'snsScan') return;
+    if (!onListPage()) {
+      sendResponse({ ok: false, reason: 'not-list' });
+      return;
+    }
+    scanTiles().then((items) => sendResponse({ ok: true, items }));
+    return true; // async response
+  });
 
   // Honor Stop pressed in the popup or another tab.
   chrome.storage.onChanged.addListener((changes, area) => {
