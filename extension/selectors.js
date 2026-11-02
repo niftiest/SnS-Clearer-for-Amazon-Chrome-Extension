@@ -11,6 +11,10 @@ window.SNS_SELECTORS = {
   // How we recognize we're on the list page (path prefix, ref param can vary).
   listPathPrefix: '/auto-deliveries/subscriptionList',
 
+  // Pages only the user can get past (human check, CAPTCHA, sign-in). The run pauses
+  // here without touching the page, and resumes on the next page load.
+  userActionPaths: ['/checkpoint/', '/errors/validateCaptcha', '/ap/'],
+
   // One tile per subscription (Oct 2026 grid layout). Its data-edit-url carries
   // the subscription's unique id, which is how we target a specific item.
   tile: '[class*="subscriptions-card"][class*="clickableTile"][data-edit-url]',

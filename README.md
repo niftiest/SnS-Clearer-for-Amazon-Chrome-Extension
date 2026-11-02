@@ -29,7 +29,7 @@ repeats.
 
 1. Make sure you're logged in to Amazon.
 2. Click the extension icon. If you're not on your subscription list, click
-   **Open subscription list**, then click the icon again.
+   **Open subscription list**; the popup reopens once the page has loaded.
 3. The popup lists every subscription (checkbox, photo, title). Tick the ones to cancel,
    or use **All** / **None**, then click **Cancel N selected** and confirm.
 4. A small overlay (top-right of the page) shows progress and has a **Stop** button. The
@@ -45,6 +45,7 @@ extension/
   manifest.json   MV3 config
   selectors.js    All Amazon selectors/URLs — the only file to edit if Amazon's markup changes
   content.js      The resumable cancel engine + on-page overlay
+  background.js   Opens the subscription list, then reopens the popup when it's ready
   popup.html/js   Subscription picker, confirmation step, live status
   icons/          Toolbar/store icons (rendered from store/src/icon.svg)
 store/
@@ -79,6 +80,10 @@ Drive the cancel flow once; selectors/HTML/navigations are logged to
   run is active.
 - A safety cap (1000 iterations) guards against a runaway loop; normal completion is an
   empty queue.
+- An item only counts as cancelled once it has disappeared from the list. If it's still
+  there after 3 tries, the run stops with an error.
+- Amazon may show an "I am human" check during a run. The extension never answers it: the
+  run pauses until you complete the page yourself, then continues.
 
 ## Privacy
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "S&S Clearer for Amazon",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Pick which Amazon Subscribe & Save subscriptions to cancel, then cancel them all in one go. Not affiliated with Amazon.",
   "permissions": ["storage"],
   "host_permissions": ["*://www.amazon.com/*"],
@@ -10,6 +10,9 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "action": {
     "default_popup": "popup.html",

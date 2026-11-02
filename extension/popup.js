@@ -27,7 +27,7 @@ function showError(msg) {
 // ---------- progress view (running, or the summary after a run) ----------
 function renderProgress(s) {
   const status = $('status');
-  status.textContent = s.running ? 'Running' : 'Idle';
+  status.textContent = s.running ? (s.paused ? 'Waiting for you' : 'Running') : 'Idle';
   status.className = 'val ' + (s.running ? 'status-running' : 'status-idle');
   $('count').textContent = s.cancelledCount || 0;
   $('remaining').textContent = (s.queue || []).length;
@@ -108,10 +108,17 @@ async function loadPicker() {
   }
   listTab = tab;
   let res;
-  try {
-    res = await chrome.tabs.sendMessage(tab.id, { type: 'snsScan' });
-  } catch (e) {
-    // Content script isn't in this tab yet (page opened before the extension loaded).
+  // When the popup reopens right after the page loads, the content script may be
+  // a moment behind, so allow a few tries.
+  for (let i = 0; i < 8 && !res; i++) {
+    try {
+      res = await chrome.tabs.sendMessage(tab.id, { type: 'snsScan' });
+    } catch (e) {
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  if (!res) {
+    // Content script isn't in this tab (page opened before the extension loaded).
     show('elsewhere');
     $('open').textContent = 'Reload page';
     showError('Reload the subscription page, then click the extension icon again.');
@@ -149,8 +156,13 @@ $('none').addEventListener('click', () => {
 
 $('open').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab && tab.url && tab.url.startsWith(LIST_PREFIX)) await chrome.tabs.reload(tab.id);
-  else await chrome.tabs.create({ url: LIST_URL, active: true });
+  const onList = tab && tab.url && tab.url.startsWith(LIST_PREFIX);
+  // The background worker does this so it can reopen the popup when the page is ready.
+  await chrome.runtime.sendMessage({
+    type: 'snsOpenList',
+    url: LIST_URL,
+    reloadTabId: onList ? tab.id : null
+  });
   window.close();
 });
 

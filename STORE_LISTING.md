@@ -19,31 +19,35 @@ isn't already.
 **Description:**
 
 ```
-Cancelling Amazon Subscribe & Save subscriptions one at a time means Edit → Cancel → wait → Confirm, over and over. S&S Clearer does it for you.
+Cancel your Amazon Subscribe & Save subscriptions in bulk. Pick the ones you want gone, confirm once, and it does the rest.
 
-HOW IT WORKS
-1. Open your Subscribe & Save subscription list on amazon.com.
-2. Click the S&S Clearer icon. You'll see every subscription with its photo and title.
-3. Tick the ones you want to cancel — or press "All".
-4. Review the confirmation screen, then press "Yes, cancel".
+Normally every cancellation means Edit → Cancel subscription → wait → Confirm, one subscription at a time. S&S Clearer shows your whole subscription list in one place, lets you tick exactly which ones to cancel, and then works through them for you.
 
-S&S Clearer then cancels each selected subscription in turn, exactly as you would by hand. A small panel on the page shows progress, and you can press Stop at any time.
-
-WHY YOU CAN TRUST IT
-• Nothing is cancelled until you confirm, and only the items you ticked are touched.
-• Each subscription is matched by its unique ID, so look-alike products are never mixed up.
-• Runs entirely in your browser. No accounts, no tracking, no data leaves your computer.
-• Only works on amazon.com, and only does anything while a run you started is active.
-
-GOOD FOR
-• Moving, or pausing household deliveries
+Perfect for:
+• Moving house or pausing household deliveries
 • Cleaning up a long list of forgotten subscriptions
-• Switching to buying locally
+• Switching to buying locally or from another store
 
-NOTES
-• Supports amazon.com (US) Subscribe & Save subscriptions.
-• Cancellations are permanent on Amazon's side — you can re-subscribe from the product page.
-• If Amazon changes its website, the extension may need an update.
+Features:
+• Pick and choose: every subscription is listed with its photo and title, or press "All"
+• Review first: a confirmation screen lists exactly what will be cancelled
+• Precise: each subscription is matched by its unique ID, so look-alike products never get mixed up
+• Accurate count: an item only counts as cancelled once it has left your list
+• Live progress: an on-page panel shows each cancellation, with a Stop button at any time
+• Lightweight: no account, no tracking, minimal permissions
+
+How to use:
+1. Click the S&S Clearer icon and open your subscription list
+2. Tick the subscriptions to cancel
+3. Review the confirmation screen and press "Yes, cancel"
+
+Privacy:
+This extension only requests the permissions it needs to function. It does not collect, store, or transmit any data. All operations happen locally in your browser, and it only runs on amazon.com.
+
+Notes:
+Supports amazon.com (US) Subscribe & Save subscriptions. Cancellations are permanent, but you can re-subscribe from any product page.
+
+Amazon may ask you to confirm you are human during a run. The extension pauses until you complete that check yourself, then continues. It never answers these checks for you.
 
 S&S Clearer is an independent tool and is not affiliated with, endorsed by, or sponsored by Amazon. Amazon and Subscribe & Save are trademarks of Amazon.com, Inc. or its affiliates.
 ```

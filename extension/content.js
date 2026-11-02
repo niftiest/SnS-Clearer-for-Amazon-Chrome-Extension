@@ -9,7 +9,8 @@
 (() => {
   const S = window.SNS_SELECTORS;
   const KEY = 'snsClearerState';
-  const MAX_ITER = 1000; // runaway guard; real stop is "no Edit buttons left"
+  const MAX_ITER = 1000; // runaway guard; real stop is an empty queue
+  const MAX_CONFIRM_ATTEMPTS = 3; // per subscription, before stopping with an error
   let aborted = false;
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -25,6 +26,8 @@
   }
 
   const onListPage = () => location.pathname.startsWith(S.listPathPrefix);
+  const needsUserAction = () =>
+    S.userActionPaths.some((p) => location.pathname.startsWith(p));
   const isVisible = (el) =>
     !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
 
@@ -159,16 +162,35 @@
 
     const id = queue[0];
     const name = (s.names && s.names[id]) || 'subscription';
-    const tile = await waitFor(() => findTile(id), 8000);
+    // Wait for the grid, not this tile: a cancelled item's tile never appears. An
+    // empty list (the last item was just cancelled) simply uses up the timeout.
+    await waitFor(() => document.querySelector(S.tile), 8000);
     if (aborted) return;
+    await sleep(750); // let the rest of the grid finish rendering
+    if (aborted) return;
+    const tile = findTile(id);
     if (!tile) {
-      // Already gone (cancelled elsewhere?) — skip it and move on.
+      // Gone from the list. If we confirmed it, that's the proof it was cancelled;
+      // otherwise it was already gone (cancelled elsewhere?), so just skip it.
+      const confirmed = s.pendingId === id;
       await setState({
         queue: queue.slice(1),
-        skipped: (s.skipped || []).concat(name),
-        iterations: (s.iterations || 0) + 1
+        pendingId: null,
+        pendingAttempts: 0,
+        iterations: (s.iterations || 0) + 1,
+        ...(confirmed
+          ? { cancelledCount: (s.cancelledCount || 0) + 1, lastCancelled: name }
+          : { skipped: (s.skipped || []).concat(name) })
       });
       return runOneCancellation();
+    }
+
+    // Still listed after we confirmed it: the confirm didn't take (for example a
+    // human check interrupted it). Try again, within reason.
+    const attempts = s.pendingId === id ? s.pendingAttempts || 0 : 0;
+    if (attempts >= MAX_CONFIRM_ATTEMPTS) {
+      await stop('Could not cancel "' + name + '": it is still on your list.');
+      return;
     }
 
     const editBtn = tile.querySelector(S.editButton);
@@ -200,13 +222,13 @@
       return;
     }
 
-    const next = await setState({
-      queue: queue.slice(1),
-      iterations: (s.iterations || 0) + 1,
-      cancelledCount: (s.cancelledCount || 0) + 1,
-      lastCancelled: name
+    // Not counted yet: it stays queued until the list shows it's gone.
+    await setState({
+      pendingId: id,
+      pendingAttempts: attempts + 1,
+      iterations: (s.iterations || 0) + 1
     });
-    setMsg('Confirmed: ' + name + '. Continuing…', next.cancelledCount);
+    setMsg('Confirming: ' + name + '…', s.cancelledCount || 0);
     confirmBtn.click();
 
     // Confirm normally navigates to a completion page (handled on next load).
@@ -222,8 +244,19 @@
     if (!s.running) return; // inert on every page unless a run is active
 
     aborted = false;
-    setMsg('Running…', s.cancelledCount || 0);
     setButtonMode('stop');
+
+    if (needsUserAction()) {
+      await setState({ paused: true, lastMessage: 'Waiting for you to finish Amazon\'s check.' });
+      setMsg(
+        'Paused: Amazon needs you to complete this page yourself. The run continues once you\'re through.',
+        s.cancelledCount || 0
+      );
+      return;
+    }
+
+    if (s.paused) await setState({ paused: false });
+    setMsg('Running…', s.cancelledCount || 0);
 
     if (!onListPage()) {
       // Post-cancel completion/transit page: bounce back to the list to continue.
